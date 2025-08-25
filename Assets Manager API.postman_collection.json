@@ -1,0 +1,732 @@
+{
+	"info": {
+		"_postman_id": "fabe5e7f-cba4-4480-85f0-a5c39f5b7bd1",
+		"name": "Assets Manager API",
+		"description": "Collection para probar el sistema de gestión de assets",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "46239301",
+		"_collection_link": "https://web.postman.co/workspace/ak7's-Workspace~50203ab1-2ded-4129-8ea6-d55dc570eb2a/collection/46239301-fabe5e7f-cba4-4480-85f0-a5c39f5b7bd1?action=share&source=collection_link&creator=46239301"
+	},
+	"item": [
+		{
+			"name": "1. Health Check",
+			"item": [
+				{
+					"name": "Check if service is running",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/actuator/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"actuator",
+								"health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Upload Assets",
+			"item": [
+				{
+					"name": "Upload PDF Document",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 202 Accepted\", function() {",
+									"    pm.response.to.have.status(202);",
+									"});",
+									"",
+									"pm.test(\"Response contains asset ID\", function() {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('id');",
+									"    pm.collectionVariables.set('uploaded_asset_id', response.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-API-KEY",
+								"value": "{{api_key}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filename\": \"documento-importante.pdf\",\n  \"contentType\": \"application/pdf\",\n  \"encodedFile\": \"JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovT3V0bGluZXMgMiAwIFIKL1BhZ2VzIDMgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9UeXBlIC9PdXRsaW5lcwovQ291bnQgMAo+PgplbmRvYmoKMyAwIG9iago8PAovVHlwZSAvUGFnZXMKL0NvdW50IDEKL0tpZHMgWzQgMCBSXQo+PgplbmRvYmoKNCAwIG9iago8PAovVHlwZSAvUGFnZQovUGFyZW50IDMgMCBSCi9SZXNvdXJjZXMgPDwKL0ZvbnQgPDwKL0YxIDkgMCBSCj4+Cj4+Ci9NZWRpYUJveCBbMC4wMDAgMC4wMDAgNjEyLjAwMCA3OTIuMDAwXQovQ29udGVudHMgNSAwIFIKPj4KZW5kb2JqCjUgMCBvYmoKPDwKL0xlbmd0aCA0NAo+PgpzdHJlYW0KQlQKL0YxIDEyIFRmCjcyIDcyMCBUZApTYW1wbGUgUERGIERvY3VtZW50CkVUCmVuZHN0cmVhbQplbmRvYmoKNiAwIG9iago8PAovVHlwZSAvRm9udAovU3VidHlwZSAvVHlwZTEKL0Jhc2VGb250IC9UaW1lcy1Sb21hbgo+PgplbmRvYmoKeHJlZgowIDcKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNzQgMDAwMDAgbiAKMDAwMDAwMDEyMCAwMDAwMCBuIAowMDAwMDAwMTc5IDAwMDAwIG4gCjAwMDAwMDAzNjQgMDAwMDAgbiAKMDAwMDAwMDQ2NiAwMDAwMCBuIAp0cmFpbGVyCjw8Ci9TaXplIDcKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjU2NQolJUVPRgo=\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/mgmt/1/assets/actions/upload",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mgmt",
+								"1",
+								"assets",
+								"actions",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Image JPG",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-API-KEY",
+								"value": "{{api_key}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filename\": \"foto-vacaciones.jpg\",\n  \"contentType\": \"image/jpeg\",\n  \"encodedFile\": \"/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQEBAQIBAQECAgICAgQDAgICAgUEBAMEBgUGBgYFBgYGBwkIBgcJBwYGCAsICQoKCgoKBggLDAsKDAkKCgr/2wBDAQICAgICAgUDAwUKBwYHCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgr/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/mgmt/1/assets/actions/upload",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mgmt",
+								"1",
+								"assets",
+								"actions",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Text File",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-API-KEY",
+								"value": "{{api_key}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filename\": \"README.txt\",\n  \"contentType\": \"text/plain\",\n  \"encodedFile\": \"RXN0ZSBlcyB1biBhcmNoaXZvIGRlIGVqZW1wbG8gcGFyYSBwcm9iYXIgZWwgc2lzdGVtYSBkZSBhc3NldHMuCgpDb250ZW5pZG86Ci0gSW5zdHJ1Y2Npb25lcyBkZSBpbnN0YWxhY2nDs24KLSBFamVtcGxvcyBkZSB1c28KLSBDb250YWN0byBkZWwgZGVzYXJyb2xsYWRvcg==\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/mgmt/1/assets/actions/upload",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mgmt",
+								"1",
+								"assets",
+								"actions",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Search Assets",
+			"item": [
+				{
+					"name": "Get All Assets (No Filters)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-KEY",
+								"value": "{{api_key}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mgmt/1/assets/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mgmt",
+								"1",
+								"assets",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search by Filename Pattern",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-KEY",
+								"value": "{{api_key}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mgmt/1/assets/?filename=*.pdf",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mgmt",
+								"1",
+								"assets",
+								""
+							],
+							"query": [
+								{
+									"key": "filename",
+									"value": "*.pdf"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search by File Type",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-KEY",
+								"value": "{{api_key}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mgmt/1/assets/?filetype=image/jpeg",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mgmt",
+								"1",
+								"assets",
+								""
+							],
+							"query": [
+								{
+									"key": "filetype",
+									"value": "image/jpeg"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search with Date Range",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-KEY",
+								"value": "{{api_key}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mgmt/1/assets/?uploadDateStart=2024-01-01T00:00:00Z&uploadDateEnd=2025-12-31T23:59:59Z",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mgmt",
+								"1",
+								"assets",
+								""
+							],
+							"query": [
+								{
+									"key": "uploadDateStart",
+									"value": "2024-01-01T00:00:00Z"
+								},
+								{
+									"key": "uploadDateEnd",
+									"value": "2025-12-31T23:59:59Z"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search with Multiple Filters + Sort ASC",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-KEY",
+								"value": "{{api_key}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mgmt/1/assets/?filename=*documento*&filetype=application/pdf&sortDirection=ASC",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mgmt",
+								"1",
+								"assets",
+								""
+							],
+							"query": [
+								{
+									"key": "filename",
+									"value": "*documento*"
+								},
+								{
+									"key": "filetype",
+									"value": "application/pdf"
+								},
+								{
+									"key": "sortDirection",
+									"value": "ASC"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search with Sort DESC (Default)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-KEY",
+								"value": "{{api_key}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mgmt/1/assets/?sortDirection=DESC",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mgmt",
+								"1",
+								"assets",
+								""
+							],
+							"query": [
+								{
+									"key": "sortDirection",
+									"value": "DESC"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Error Cases",
+			"item": [
+				{
+					"name": "Upload without API Key (Should get 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 401 Unauthorized\", function() {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filename\": \"test.txt\",\n  \"contentType\": \"text/plain\",\n  \"encodedFile\": \"dGVzdA==\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/mgmt/1/assets/actions/upload",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mgmt",
+								"1",
+								"assets",
+								"actions",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload with Wrong API Key (Should get 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 401 Unauthorized\", function() {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "incorrectkeeeeeeeeeeeey",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-API-KEY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-API-KEY",
+								"value": "wrong-key"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filename\": \"test.txt\",\n  \"contentType\": \"text/plain\",\n  \"encodedFile\": \"dGVzdA==\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/mgmt/1/assets/actions/upload",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mgmt",
+								"1",
+								"assets",
+								"actions",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload with Empty Fields (Should get 400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 400 Bad Request\", function() {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-API-KEY",
+								"value": "{{api_key}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filename\": \"\",\n  \"contentType\": \"\",\n  \"encodedFile\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/mgmt/1/assets/actions/upload",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mgmt",
+								"1",
+								"assets",
+								"actions",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search without API Key (Should get 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 401 Unauthorized\", function() {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/mgmt/1/assets/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mgmt",
+								"1",
+								"assets",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search with Invalid Sort Direction (Should get 400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 400 Bad Request\", function() {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-KEY",
+								"value": "{{api_key}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mgmt/1/assets/?sortDirection=INVALID",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mgmt",
+								"1",
+								"assets",
+								""
+							],
+							"query": [
+								{
+									"key": "sortDirection",
+									"value": "INVALID"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Documentation (No Auth Required)",
+			"item": [
+				{
+					"name": "Open Swagger UI",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains Swagger HTML\", function() {",
+									"    pm.expect(pm.response.text()).to.include('Swagger UI');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/swagger-ui/index.html",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"swagger-ui",
+								"index.html"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get OpenAPI JSON",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is valid JSON\", function() {",
+									"    pm.response.json();",
+									"});",
+									"",
+									"pm.test(\"Contains OpenAPI structure\", function() {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('openapi');",
+									"    pm.expect(response).to.have.property('info');",
+									"    pm.expect(response).to.have.property('paths');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/v3/api-docs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v3",
+								"api-docs"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			}
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "key",
+				"value": "X-API-KEY",
+				"type": "string"
+			},
+			{
+				"key": "value",
+				"value": "my-secret-key",
+				"type": "string"
+			},
+			{
+				"key": "in",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:9085"
+		},
+		{
+			"key": "api_key",
+			"value": "my-secret-key"
+		},
+		{
+			"key": "uploaded_asset_id",
+			"value": ""
+		}
+	]
+}
