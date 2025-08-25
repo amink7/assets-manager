@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -120,13 +121,19 @@ public class AssetController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid upload date range");
         }
 
+        if (uploadDateStart == null || uploadDateEnd == null || uploadDateStart.isAfter(uploadDateEnd)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        Instant start = uploadDateStart.truncatedTo(ChronoUnit.MILLIS);
+        Instant end = uploadDateEnd.truncatedTo(ChronoUnit.MILLIS);
+
         boolean asc = switch (sortDirection) {
             case ASC -> true;
             case DESC -> false;
             default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Unsupported sort direction: " + sortDirection);
         };
-        return searchUC.execute(uploadDateStart, uploadDateEnd, filename, filetype, asc)
+        return searchUC.execute(start, end, filename, filetype, asc)
                 .stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());

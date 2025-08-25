@@ -12,6 +12,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
+import java.time.Instant;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -34,7 +35,11 @@ class ApiKeyAuthFilterIntegrationTest {
 
     @Test
     void requestWithoutApiKeyIsUnauthorized() throws Exception {
-        mockMvc.perform(get("/api/mgmt/1/assets/"))
+        Instant start = Instant.EPOCH;
+        Instant end = Instant.EPOCH.plusSeconds(1);
+        mockMvc.perform(get("/api/mgmt/1/assets/")
+                        .param("uploadDateStart", start.toString())
+                        .param("uploadDateEnd", end.toString()))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -42,7 +47,12 @@ class ApiKeyAuthFilterIntegrationTest {
     void requestWithValidApiKeyIsAuthorized() throws Exception {
         when(searchUC.execute(any(), any(), any(), any(), anyBoolean())).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/api/mgmt/1/assets/").header("X-API-KEY", "test-key"))
+        Instant start = Instant.EPOCH;
+        Instant end = Instant.EPOCH.plusSeconds(1);
+        mockMvc.perform(get("/api/mgmt/1/assets/")
+                        .param("uploadDateStart", start.toString())
+                        .param("uploadDateEnd", end.toString())
+                        .header("X-API-KEY", "test-key"))
                 .andExpect(status().isOk());
     }
 }

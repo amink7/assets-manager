@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
+import java.time.temporal.ChronoUnit;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -62,16 +63,21 @@ class AssetControllerTest {
         Asset asset = new Asset(UUID.randomUUID(), "file.txt", "text/plain", "url", 4L, Instant.EPOCH, null);
         when(searchUC.execute(any(), any(), any(), any(), anyBoolean())).thenReturn(List.of(asset));
 
-        mockMvc.perform(get("/api/mgmt/1/assets/"))
+        Instant start = Instant.parse("2020-01-01T00:00:00Z");
+        Instant end = Instant.parse("2020-01-31T23:59:59Z");
+
+        mockMvc.perform(get("/api/mgmt/1/assets/")
+                        .param("uploadDateStart", start.toString())
+                        .param("uploadDateEnd", end.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(asset.id().toString()))
                 .andExpect(jsonPath("$[0].filename").value("file.txt"));
     }
 
     @Test
-    void search_shouldForwardQueryParameters() throws Exception {
-        Instant start = Instant.parse("2020-01-01T00:00:00Z");
-        Instant end = Instant.parse("2020-01-31T23:59:59Z");
+    void search_shouldTruncateAndForwardQueryParameters() throws Exception {
+        Instant start = Instant.parse("2020-01-01T00:00:00.123456Z");
+        Instant end = Instant.parse("2020-01-31T23:59:59.987654Z");
         when(searchUC.execute(any(), any(), any(), any(), anyBoolean())).thenReturn(List.of());
 
         mockMvc.perform(get("/api/mgmt/1/assets/")
@@ -82,7 +88,32 @@ class AssetControllerTest {
                         .param("sortDirection", "DESC"))
                 .andExpect(status().isOk());
 
-        verify(searchUC).execute(start, end, "file.*", "text/plain", false);
+        verify(searchUC).execute(
+                start.truncatedTo(ChronoUnit.MILLIS),
+                end.truncatedTo(ChronoUnit.MILLIS),
+                "file.*",
+                "text/plain",
+                false);
+    }
+
+    @Test
+    void search_shouldReturnBadRequestWhenRangeInvalid() throws Exception {
+        Instant start = Instant.parse("2020-02-01T00:00:00Z");
+        Instant end = Instant.parse("2020-01-01T00:00:00Z");
+
+        mockMvc.perform(get("/api/mgmt/1/assets/")
+                        .param("uploadDateStart", start.toString())
+                        .param("uploadDateEnd", end.toString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void search_shouldReturnBadRequestWhenMissingDateParameter() throws Exception {
+        Instant start = Instant.parse("2020-01-01T00:00:00Z");
+
+        mockMvc.perform(get("/api/mgmt/1/assets/")
+                        .param("uploadDateStart", start.toString()))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
