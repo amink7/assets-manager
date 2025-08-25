@@ -175,7 +175,8 @@ class AssetControllerTest {
         mockMvc.perform(get("/api/mgmt/1/assets/")
                         .param("uploadDateStart", start.toString())
                         .param("uploadDateEnd", end.toString()))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Invalid upload date range"));
     }
 
 
