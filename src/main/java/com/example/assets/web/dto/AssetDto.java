@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.example.assets.domain.model.AssetStatus;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -30,4 +31,6 @@ public class AssetDto {
     private Long size;
 
     private Instant uploadDate;
+
+    private AssetStatus status;
 }

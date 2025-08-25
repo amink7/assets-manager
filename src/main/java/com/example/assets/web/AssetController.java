@@ -3,6 +3,7 @@ package com.example.assets.web;
 import com.example.assets.domain.model.Asset;
 import com.example.assets.domain.usecase.SearchAssetsUseCase;
 import com.example.assets.domain.usecase.UploadAssetUseCase;
+import com.example.assets.domain.usecase.FindAssetUseCase;
 import com.example.assets.web.dto.AssetDto;
 import com.example.assets.web.dto.AssetFileUploadRequest;
 import com.example.assets.web.dto.AssetFileUploadResponse;
@@ -25,6 +26,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
 /**
  * REST controller for managing assets.
@@ -36,10 +38,12 @@ public class AssetController {
 
     private final UploadAssetUseCase uploadUC;
     private final SearchAssetsUseCase searchUC;
+    private final FindAssetUseCase findUC;
 
-    public AssetController(UploadAssetUseCase uploadUC, SearchAssetsUseCase searchUC) {
+    public AssetController(UploadAssetUseCase uploadUC, SearchAssetsUseCase searchUC, FindAssetUseCase findUC) {
         this.uploadUC = uploadUC;
         this.searchUC = searchUC;
+        this.findUC = findUC;
     }
 
     /**
@@ -139,6 +143,25 @@ public class AssetController {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves a single asset by its ID.
+     */
+    @GetMapping("/{id}")
+    @Operation(
+            summary = "Get asset by ID",
+            description = "Returns the asset status and URL if found",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Asset found", content = @Content(schema = @Schema(implementation = AssetDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Asset not found", content = @Content)
+            }
+    )
+    public AssetDto getById(@PathVariable UUID id) {
+        return findUC.execute(id)
+                .map(this::toDto)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+
     private AssetDto toDto(Asset asset) {
         return AssetDto.builder()
                 .id(asset.id())
@@ -147,6 +170,7 @@ public class AssetController {
                 .url(asset.url())
                 .size(asset.size())
                 .uploadDate(asset.uploadDate())
+                .status(asset.status())
                 .build();
     }
 }

@@ -1,8 +1,10 @@
 package com.example.assets.web;
 
 import com.example.assets.domain.model.Asset;
+import com.example.assets.domain.model.AssetStatus;
 import com.example.assets.domain.usecase.SearchAssetsUseCase;
 import com.example.assets.domain.usecase.UploadAssetUseCase;
+import com.example.assets.domain.usecase.FindAssetUseCase;
 import com.example.assets.web.dto.AssetFileUploadRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -40,6 +42,9 @@ class AssetControllerTest {
 
     @MockitoBean
     SearchAssetsUseCase searchUC;
+
+    @MockitoBean
+    FindAssetUseCase findUC;
 
     @Test
     void upload_shouldReturnAcceptedWithId() throws Exception {
@@ -146,5 +151,28 @@ class AssetControllerTest {
                         .param("uploadDateStart", start.toString())
                         .param("uploadDateEnd", end.toString()))
                 .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void getById_shouldReturnAsset() throws Exception {
+        UUID id = UUID.randomUUID();
+        Asset asset = new Asset(id, "file.txt", "text/plain", "url", 4L, Instant.EPOCH, AssetStatus.PUBLISHED);
+        when(findUC.execute(id)).thenReturn(java.util.Optional.of(asset));
+
+        mockMvc.perform(get("/api/mgmt/1/assets/" + id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id.toString()))
+                .andExpect(jsonPath("$.status").value("PUBLISHED"))
+                .andExpect(jsonPath("$.url").value("url"));
+    }
+
+    @Test
+    void getById_shouldReturnNotFound() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(findUC.execute(id)).thenReturn(java.util.Optional.empty());
+
+        mockMvc.perform(get("/api/mgmt/1/assets/" + id))
+                .andExpect(status().isNotFound());
     }
 }
