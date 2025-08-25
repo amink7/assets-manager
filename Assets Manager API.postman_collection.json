@@ -364,7 +364,56 @@
 			]
 		},
 		{
-			"name": "4. Error Cases",
+			"name": "4. Find Asset",
+			"item": [
+				{
+					"name": "Get Asset by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains expected asset ID\", function() {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.id).to.eql(pm.collectionVariables.get('uploaded_asset_id'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-KEY",
+								"value": "{{api_key}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mgmt/1/assets/{{uploaded_asset_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mgmt",
+								"1",
+								"assets",
+								"{{uploaded_asset_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Error Cases",
 			"item": [
 				{
 					"name": "Upload without API Key (Should get 401)",
@@ -610,7 +659,7 @@
 			]
 		},
 		{
-			"name": "5. Documentation (No Auth Required)",
+			"name": "6. Documentation (No Auth Required)",
 			"item": [
 				{
 					"name": "Open Swagger UI",
