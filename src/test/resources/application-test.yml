@@ -7,6 +7,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+    show-sql: false
+
+logging:
+  level:
+    org.hibernate: warn
+
 security:
   api:
     key: test-key
