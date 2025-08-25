@@ -50,7 +50,7 @@ src/main/java/com/example/assets/
 
 ```bash
 # Clonar el repositorio
-git clone <repository-url>
+git clone https://github.com/amink7/assets-manager
 cd assets-manager
 
 # Configurar variables de entorno
