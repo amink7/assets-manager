@@ -84,4 +84,36 @@ class AssetControllerTest {
 
         verify(searchUC).execute(start, end, "file.*", "text/plain", false);
     }
+
+    @Test
+    void search_shouldReturnBadRequestForInvalidSortDirection() throws Exception {
+        mockMvc.perform(get("/api/mgmt/1/assets/")
+                        .param("sortDirection", "INVALID"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void search_shouldReturnBadRequestForEmptyFilename() throws Exception {
+        mockMvc.perform(get("/api/mgmt/1/assets/")
+                        .param("filename", ""))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void search_shouldReturnBadRequestForEmptyFiletype() throws Exception {
+        mockMvc.perform(get("/api/mgmt/1/assets/")
+                        .param("filetype", ""))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void search_shouldReturnBadRequestForInvalidDateRange() throws Exception {
+        Instant start = Instant.parse("2020-02-01T00:00:00Z");
+        Instant end = Instant.parse("2020-01-01T00:00:00Z");
+
+        mockMvc.perform(get("/api/mgmt/1/assets/")
+                        .param("uploadDateStart", start.toString())
+                        .param("uploadDateEnd", end.toString()))
+                .andExpect(status().isBadRequest());
+    }
 }

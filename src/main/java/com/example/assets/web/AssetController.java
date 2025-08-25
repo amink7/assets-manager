@@ -107,6 +107,19 @@ public class AssetController {
             )
             @RequestParam(required = false, defaultValue = "DESC") SortDirection sortDirection
     ) {
+        if (sortDirection == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid sort direction");
+        }
+        if (filename != null && filename.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Filename must not be empty");
+        }
+        if (filetype != null && filetype.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Filetype must not be empty");
+        }
+        if (uploadDateStart != null && uploadDateEnd != null && uploadDateStart.isAfter(uploadDateEnd)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid upload date range");
+        }
+
         boolean asc = switch (sortDirection) {
             case ASC -> true;
             case DESC -> false;
