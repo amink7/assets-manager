@@ -102,30 +102,55 @@ class AssetControllerTest {
     }
 
     @Test
-    void search_shouldReturnBadRequestWhenRangeInvalid() throws Exception {
-        Instant start = Instant.parse("2020-02-01T00:00:00Z");
-        Instant end = Instant.parse("2020-01-01T00:00:00Z");
-
-        mockMvc.perform(get("/api/mgmt/1/assets/")
-                        .param("uploadDateStart", start.toString())
-                        .param("uploadDateEnd", end.toString()))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void search_shouldReturnBadRequestWhenMissingDateParameter() throws Exception {
-        Instant start = Instant.parse("2020-01-01T00:00:00Z");
+    void search_shouldAllowMissingEndDate() throws Exception {
+        Instant start = Instant.parse("2020-01-01T00:00:00.123456Z");
+        when(searchUC.execute(any(), any(), any(), any(), anyBoolean())).thenReturn(List.of());
 
         mockMvc.perform(get("/api/mgmt/1/assets/")
                         .param("uploadDateStart", start.toString()))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
+
+        verify(searchUC).execute(
+                start.truncatedTo(ChronoUnit.MILLIS),
+                null,
+                null,
+                null,
+                false);
+    }
+
+    @Test
+    void search_shouldAllowMissingStartDate() throws Exception {
+        Instant end = Instant.parse("2020-01-31T23:59:59.987654Z");
+        when(searchUC.execute(any(), any(), any(), any(), anyBoolean())).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/mgmt/1/assets/")
+                        .param("uploadDateEnd", end.toString()))
+                .andExpect(status().isOk());
+
+        verify(searchUC).execute(
+                null,
+                end.truncatedTo(ChronoUnit.MILLIS),
+                null,
+                null,
+                false);
     }
 
     @Test
     void search_shouldReturnBadRequestForInvalidSortDirection() throws Exception {
         mockMvc.perform(get("/api/mgmt/1/assets/")
                         .param("sortDirection", "INVALID"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message")
+                        .value("Sort direction must be ASC or DESC"));
+    }
+
+    @Test
+    void search_shouldReturnBadRequestForInvalidDateFormat() throws Exception {
+        mockMvc.perform(get("/api/mgmt/1/assets/")
+                        .param("uploadDateStart", "2024-13-01")
+                        .param("uploadDateEnd", "2024-01-01T00:00:00Z"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Fecha mal formateada"));
     }
 
     @Test

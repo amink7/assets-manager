@@ -30,7 +30,14 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())                    // CSRF disabled for APIs
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(swaggerUiPath + "/**", apiDocsPath + "/**", swaggerUiPath + ".html").permitAll()                        // If my future boss wants GET to be public, uncomment this:
+                        .requestMatchers(
+                                swaggerUiPath,
+                                swaggerUiPath + "/**",
+                                swaggerUiPath + ".html",
+                                apiDocsPath,
+                                apiDocsPath + "/**"
+                        ).permitAll()
+                        // If my future boss wants GET to be public, uncomment this:
                         // .requestMatchers(HttpMethod.GET, "/api/mgmt/1/assets/**").permitAll()
                         .anyRequest().authenticated()
                 )

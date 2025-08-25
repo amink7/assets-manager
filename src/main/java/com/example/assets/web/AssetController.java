@@ -124,7 +124,8 @@ public class AssetController {
                 uploadDateStart, uploadDateEnd, filename, filetype, sortDirection);
         if (sortDirection == null) {
             log.warn("Invalid sort direction: null");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid sort direction");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Sort direction must be ASC or DESC");
         }
         if (filename != null && filename.isBlank()) {
             log.warn("Filename must not be empty");
@@ -139,12 +140,8 @@ public class AssetController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid upload date range");
         }
 
-        if (uploadDateStart == null || uploadDateEnd == null || uploadDateStart.isAfter(uploadDateEnd)) {
-            log.warn("Missing or invalid upload date range: start={}, end={}", uploadDateStart, uploadDateEnd);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
-        Instant start = uploadDateStart.truncatedTo(ChronoUnit.MILLIS);
-        Instant end = uploadDateEnd.truncatedTo(ChronoUnit.MILLIS);
+        Instant start = uploadDateStart == null ? null : uploadDateStart.truncatedTo(ChronoUnit.MILLIS);
+        Instant end = uploadDateEnd == null ? null : uploadDateEnd.truncatedTo(ChronoUnit.MILLIS);
 
         boolean asc = switch (sortDirection) {
             case ASC -> true;
@@ -152,7 +149,7 @@ public class AssetController {
             default -> {
                 log.warn("Unsupported sort direction: {}", sortDirection);
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Unsupported sort direction: " + sortDirection);
+                        "Sort direction must be ASC or DESC");
             }
         };
         return searchUC.execute(start, end, filename, filetype, asc)
