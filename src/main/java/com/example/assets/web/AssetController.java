@@ -1,10 +1,12 @@
 package com.example.assets.web;
 
 import com.example.assets.domain.model.Asset;
+import com.example.assets.domain.model.SortDirection;
 import com.example.assets.domain.usecase.SearchAssetsUseCase;
 import com.example.assets.domain.usecase.UploadAssetUseCase;
 import com.example.assets.domain.usecase.FindAssetUseCase;
 import com.example.assets.web.dto.AssetDto;
+import com.example.assets.domain.model.SortDirection;
 import com.example.assets.web.dto.AssetFileUploadRequest;
 import com.example.assets.web.dto.AssetFileUploadResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -122,11 +124,7 @@ public class AssetController {
     ) {
         log.info("Searching assets with uploadDateStart={}, uploadDateEnd={}, filename={}, filetype={}, sortDirection={}",
                 uploadDateStart, uploadDateEnd, filename, filetype, sortDirection);
-        if (sortDirection == null) {
-            log.warn("Invalid sort direction: null");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Sort direction must be ASC or DESC");
-        }
+
         if (filename != null && filename.isBlank()) {
             log.warn("Filename must not be empty");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Filename must not be empty");
@@ -143,16 +141,7 @@ public class AssetController {
         Instant start = uploadDateStart == null ? null : uploadDateStart.truncatedTo(ChronoUnit.MILLIS);
         Instant end = uploadDateEnd == null ? null : uploadDateEnd.truncatedTo(ChronoUnit.MILLIS);
 
-        boolean asc = switch (sortDirection) {
-            case ASC -> true;
-            case DESC -> false;
-            default -> {
-                log.warn("Unsupported sort direction: {}", sortDirection);
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Sort direction must be ASC or DESC");
-            }
-        };
-        return searchUC.execute(start, end, filename, filetype, asc)
+        return searchUC.execute(start, end, filename, filetype, sortDirection)
                 .stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());

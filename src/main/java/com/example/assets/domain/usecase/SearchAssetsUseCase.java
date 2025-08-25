@@ -1,6 +1,7 @@
 package com.example.assets.domain.usecase;
 
 import com.example.assets.domain.model.Asset;
+import com.example.assets.domain.model.SortDirection;
 
 import java.time.Instant;
 import java.util.List;
@@ -18,7 +19,7 @@ public interface SearchAssetsUseCase {
      * @param end           optional end date filter
      * @param filenameRegex optional filename regex filter
      * @param filetype      optional file type filter
-     * @param asc           true for ascending sort by uploadDate, false for descending
+     * @param direction     sort direction by uploadDate
      * @return list of matching assets
      */
     List<Asset> execute(
@@ -26,6 +27,6 @@ public interface SearchAssetsUseCase {
             Instant end,
             String filenameRegex,
             String filetype,
-            boolean asc
+            SortDirection direction
     );
 }

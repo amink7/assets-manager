@@ -1,6 +1,7 @@
 package com.example.assets.domain.ports;
 
 import com.example.assets.domain.model.Asset;
+import com.example.assets.domain.model.SortDirection;
 
 import java.time.Instant;
 import java.util.List;
@@ -35,7 +36,7 @@ public interface AssetRepositoryPort {
      * @param end           optional end date filter
      * @param filenameRegex optional regex for filename
      * @param filetype      optional file type filter
-     * @param asc           true for ascending sort by uploadDate, false for descending
+     * @param direction     sort direction by uploadDate
      * @return list of matching assets
      */
     List<Asset> search(
@@ -43,6 +44,6 @@ public interface AssetRepositoryPort {
             Instant end,
             String filenameRegex,
             String filetype,
-            boolean asc
+            SortDirection direction
     );
 }

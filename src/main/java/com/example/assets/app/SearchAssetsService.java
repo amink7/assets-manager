@@ -3,6 +3,7 @@ package com.example.assets.app;
 import com.example.assets.domain.model.Asset;
 import com.example.assets.domain.ports.AssetRepositoryPort;
 import com.example.assets.domain.usecase.SearchAssetsUseCase;
+import com.example.assets.domain.model.SortDirection;
 
 import java.time.Instant;
 import java.util.List;
@@ -25,8 +26,8 @@ public class SearchAssetsService implements SearchAssetsUseCase {
             Instant end,
             String filenameRegex,
             String filetype,
-            boolean asc
+            SortDirection direction
     ) {
-        return repo.search(start, end, filenameRegex, filetype, asc);
+        return repo.search(start, end, filenameRegex, filetype, direction);
     }
 }

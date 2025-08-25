@@ -2,6 +2,7 @@ package com.example.assets.infra.persistence;
 
 import com.example.assets.domain.model.Asset;
 import com.example.assets.domain.model.AssetStatus;
+import com.example.assets.domain.model.SortDirection;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -107,7 +108,7 @@ class AssetRepositoryAdapterTest {
 
         Instant start = Instant.parse("2020-01-01T00:00:00Z");
         Instant end = Instant.parse("2020-01-31T23:59:59Z");
-        List<Asset> result = adapter.search(start, end, "report*", "text/plain", true);
+        List<Asset> result = adapter.search(start, end, "report*", "text/plain", SortDirection.ASC);
 
         assertEquals(1, result.size());
         Asset asset = result.get(0);
@@ -136,11 +137,11 @@ class AssetRepositoryAdapterTest {
                 .build();
         jpa.saveAll(List.of(oldEntity, newEntity));
 
-        List<Asset> asc = adapter.search(null, null, null, null, true);
+        List<Asset> asc = adapter.search(null, null, null, null, SortDirection.ASC);
         assertEquals(List.of(oldEntity.getId(), newEntity.getId()),
                 asc.stream().map(Asset::id).toList());
 
-        List<Asset> desc = adapter.search(null, null, null, null, false);
+        List<Asset> desc = adapter.search(null, null, null, null, SortDirection.DESC);
         assertEquals(List.of(newEntity.getId(), oldEntity.getId()),
                 desc.stream().map(Asset::id).toList());
     }

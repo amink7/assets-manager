@@ -2,6 +2,7 @@ package com.example.assets.web;
 
 import com.example.assets.domain.model.Asset;
 import com.example.assets.domain.model.AssetStatus;
+import com.example.assets.domain.model.SortDirection;
 import com.example.assets.domain.usecase.SearchAssetsUseCase;
 import com.example.assets.domain.usecase.UploadAssetUseCase;
 import com.example.assets.domain.usecase.FindAssetUseCase;
@@ -66,7 +67,7 @@ class AssetControllerTest {
     @Test
     void search_shouldReturnAssets() throws Exception {
         Asset asset = new Asset(UUID.randomUUID(), "file.txt", "text/plain", "url", 4L, Instant.EPOCH, null);
-        when(searchUC.execute(any(), any(), any(), any(), anyBoolean())).thenReturn(List.of(asset));
+        when(searchUC.execute(any(), any(), any(), any(), any())).thenReturn(List.of(asset));
 
         Instant start = Instant.parse("2020-01-01T00:00:00Z");
         Instant end = Instant.parse("2020-01-31T23:59:59Z");
@@ -83,7 +84,7 @@ class AssetControllerTest {
     void search_shouldTruncateAndForwardQueryParameters() throws Exception {
         Instant start = Instant.parse("2020-01-01T00:00:00.123456Z");
         Instant end = Instant.parse("2020-01-31T23:59:59.987654Z");
-        when(searchUC.execute(any(), any(), any(), any(), anyBoolean())).thenReturn(List.of());
+        when(searchUC.execute(any(), any(), any(), any(), any())).thenReturn(List.of());
 
         mockMvc.perform(get("/api/mgmt/1/assets/")
                         .param("uploadDateStart", start.toString())
@@ -98,13 +99,13 @@ class AssetControllerTest {
                 end.truncatedTo(ChronoUnit.MILLIS),
                 "file.*",
                 "text/plain",
-                false);
+                SortDirection.DESC);
     }
 
     @Test
     void search_shouldAllowMissingEndDate() throws Exception {
         Instant start = Instant.parse("2020-01-01T00:00:00.123456Z");
-        when(searchUC.execute(any(), any(), any(), any(), anyBoolean())).thenReturn(List.of());
+        when(searchUC.execute(any(), any(), any(), any(), any())).thenReturn(List.of());
 
         mockMvc.perform(get("/api/mgmt/1/assets/")
                         .param("uploadDateStart", start.toString()))
@@ -115,13 +116,13 @@ class AssetControllerTest {
                 null,
                 null,
                 null,
-                false);
+                SortDirection.DESC);
     }
 
     @Test
     void search_shouldAllowMissingStartDate() throws Exception {
         Instant end = Instant.parse("2020-01-31T23:59:59.987654Z");
-        when(searchUC.execute(any(), any(), any(), any(), anyBoolean())).thenReturn(List.of());
+        when(searchUC.execute(any(), any(), any(), any(), any())).thenReturn(List.of());
 
         mockMvc.perform(get("/api/mgmt/1/assets/")
                         .param("uploadDateEnd", end.toString()))
@@ -132,7 +133,7 @@ class AssetControllerTest {
                 end.truncatedTo(ChronoUnit.MILLIS),
                 null,
                 null,
-                false);
+                SortDirection.DESC);
     }
 
     @Test

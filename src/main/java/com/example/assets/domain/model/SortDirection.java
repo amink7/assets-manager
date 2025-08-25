@@ -1,4 +1,4 @@
-package com.example.assets.web;
+package com.example.assets.domain.model;
 
 /**
  * Direction for sorting results.

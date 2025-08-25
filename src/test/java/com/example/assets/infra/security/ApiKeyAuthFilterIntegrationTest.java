@@ -2,6 +2,7 @@ package com.example.assets.infra.security;
 
 import com.example.assets.domain.usecase.SearchAssetsUseCase;
 import com.example.assets.domain.usecase.UploadAssetUseCase;
+import com.example.assets.domain.usecase.FindAssetUseCase;
 import com.example.assets.web.AssetController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ class ApiKeyAuthFilterIntegrationTest {
     @MockitoBean
     private SearchAssetsUseCase searchUC;
 
+    @MockitoBean
+    private FindAssetUseCase findUC;
+
     @Test
     void requestWithoutApiKeyIsUnauthorized() throws Exception {
         Instant start = Instant.EPOCH;
@@ -45,7 +49,7 @@ class ApiKeyAuthFilterIntegrationTest {
 
     @Test
     void requestWithValidApiKeyIsAuthorized() throws Exception {
-        when(searchUC.execute(any(), any(), any(), any(), anyBoolean())).thenReturn(Collections.emptyList());
+        when(searchUC.execute(any(), any(), any(), any(), any())).thenReturn(Collections.emptyList());
 
         Instant start = Instant.EPOCH;
         Instant end = Instant.EPOCH.plusSeconds(1);

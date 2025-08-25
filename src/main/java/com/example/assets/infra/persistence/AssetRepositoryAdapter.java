@@ -2,6 +2,7 @@ package com.example.assets.infra.persistence;
 
 import com.example.assets.domain.model.Asset;
 import com.example.assets.domain.ports.AssetRepositoryPort;
+import com.example.assets.domain.model.SortDirection;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -63,7 +64,7 @@ public class AssetRepositoryAdapter implements AssetRepositoryPort {
             Instant end,
             String filenameRegex,
             String filetype,
-            boolean asc
+            SortDirection direction
     ) {
         Specification<AssetEntity> spec = Specification.allOf(
                 AssetSpecifications.uploadDateStart(start),
@@ -72,7 +73,10 @@ public class AssetRepositoryAdapter implements AssetRepositoryPort {
                 AssetSpecifications.filetypeEq(filetype)
         );
 
-        var sort = Sort.by(asc ? Sort.Direction.ASC : Sort.Direction.DESC, "uploadDate");
+        var sort = Sort.by(
+                direction == SortDirection.ASC ? Sort.Direction.ASC : Sort.Direction.DESC,
+                "uploadDate"
+        );
 
         return jpa.findAll(spec, sort)
                 .stream()
