@@ -21,6 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
@@ -35,6 +38,9 @@ import java.util.UUID;
 @RequestMapping(path = "/api/mgmt/1/assets", produces = "application/json")
 @Tag(name = "Assets", description = "Assets management (async upload and search)")
 public class AssetController {
+
+    private static final Logger log =
+            LoggerFactory.getLogger(AssetController.class);
 
     private final UploadAssetUseCase uploadUC;
     private final SearchAssetsUseCase searchUC;
@@ -69,10 +75,12 @@ public class AssetController {
             }
     )
     public ResponseEntity<AssetFileUploadResponse> upload(
-            @Valid @org.springframework.web.bind.annotation.RequestBody AssetFileUploadRequest req
+            @Valid @RequestBody AssetFileUploadRequest req
     ) {
+        log.info("Uploading {}", req.getFilename());
         byte[] data = Base64.getDecoder().decode(req.getEncodedFile());
         var id = uploadUC.execute(req.getFilename(), req.getContentType(), data);
+        log.info("Upload accepted: {}", id);
         return ResponseEntity.accepted().body(new AssetFileUploadResponse(id));
     }
 
@@ -112,20 +120,27 @@ public class AssetController {
             )
             @RequestParam(required = false, defaultValue = "DESC") SortDirection sortDirection
     ) {
+        log.info("Searching assets with uploadDateStart={}, uploadDateEnd={}, filename={}, filetype={}, sortDirection={}",
+                uploadDateStart, uploadDateEnd, filename, filetype, sortDirection);
         if (sortDirection == null) {
+            log.warn("Invalid sort direction: null");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid sort direction");
         }
         if (filename != null && filename.isBlank()) {
+            log.warn("Filename must not be empty");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Filename must not be empty");
         }
         if (filetype != null && filetype.isBlank()) {
+            log.warn("Filetype must not be empty");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Filetype must not be empty");
         }
         if (uploadDateStart != null && uploadDateEnd != null && uploadDateStart.isAfter(uploadDateEnd)) {
+            log.warn("Invalid upload date range: {} to {}", uploadDateStart, uploadDateEnd);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid upload date range");
         }
 
         if (uploadDateStart == null || uploadDateEnd == null || uploadDateStart.isAfter(uploadDateEnd)) {
+            log.warn("Missing or invalid upload date range: start={}, end={}", uploadDateStart, uploadDateEnd);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         Instant start = uploadDateStart.truncatedTo(ChronoUnit.MILLIS);
@@ -134,8 +149,11 @@ public class AssetController {
         boolean asc = switch (sortDirection) {
             case ASC -> true;
             case DESC -> false;
-            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Unsupported sort direction: " + sortDirection);
+            default -> {
+                log.warn("Unsupported sort direction: {}", sortDirection);
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Unsupported sort direction: " + sortDirection);
+            }
         };
         return searchUC.execute(start, end, filename, filetype, asc)
                 .stream()
@@ -156,9 +174,13 @@ public class AssetController {
             }
     )
     public AssetDto getById(@PathVariable UUID id) {
+        log.info("Fetching asset {}", id);
         return findUC.execute(id)
                 .map(this::toDto)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> {
+                    log.warn("Asset {} not found", id);
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND);
+                });
     }
 
 
