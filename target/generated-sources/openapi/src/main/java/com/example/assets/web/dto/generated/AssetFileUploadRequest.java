@@ -20,7 +20,7 @@ import jakarta.annotation.Generated;
  */
 
 @Schema(name = "AssetFileUploadRequest", description = "Request payload for uploading an asset file")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-26T02:03:28.884163600+02:00[Europe/Madrid]", comments = "Generator version: 7.10.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-26T03:14:24.563006600+02:00[Europe/Madrid]", comments = "Generator version: 7.10.0")
 public class AssetFileUploadRequest {
 
   private String filename;
@@ -72,7 +72,7 @@ public class AssetFileUploadRequest {
    * @return encodedFile
    */
   @NotNull @Size(min = 1) 
-  @Schema(name = "encodedFile", example = "[B@6fb22ae3", description = "The actual file content encoded in Base64 format. Maximum size after decoding: 50MB", requiredMode = Schema.RequiredMode.REQUIRED)
+  @Schema(name = "encodedFile", example = "[B@6903ed0e", description = "The actual file content encoded in Base64 format. Maximum size after decoding: 50MB", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("encodedFile")
   public byte[] getEncodedFile() {
     return encodedFile;
