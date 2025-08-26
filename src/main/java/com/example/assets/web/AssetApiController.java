@@ -48,12 +48,54 @@ public class AssetApiController implements AssetApi {
 
     @Override
     public ResponseEntity<Asset> getAssetById(UUID id) {
-        return null;
+        log.info("Fetching asset {}", id);
+
+        try {
+            return findUC.execute(id)
+                    .map(this::toGeneratedDto)
+                    .map(ResponseEntity::ok)
+                    .orElseThrow(() -> {
+                        log.warn("Asset {} not found", id);
+                        return new ResponseStatusException(HttpStatus.NOT_FOUND, "Asset not found");
+                    });
+        } catch (ResponseStatusException e) {
+            throw e; // Re-throw ResponseStatusException as is
+        } catch (Exception e) {
+            log.error("Unexpected error fetching asset {}", id, e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to fetch asset");
+        }
     }
 
     @Override
     public ResponseEntity<List<Asset>> getAssetsByFilter(OffsetDateTime uploadDateStart, OffsetDateTime uploadDateEnd, String filename, String filetype, String sortDirection) {
-        return null;
+        log.info("Searching assets with uploadDateStart={}, uploadDateEnd={}, filename={}, filetype={}, sortDirection={}",
+                uploadDateStart, uploadDateEnd, filename, filetype, sortDirection);
+
+        try {
+            // Validaciones
+            validateSearchParameters(filename, filetype);
+
+            // Conversión de fechas
+            Instant start = uploadDateStart != null ? uploadDateStart.toInstant().truncatedTo(ChronoUnit.MILLIS) : null;
+            Instant end = uploadDateEnd != null ? uploadDateEnd.toInstant().truncatedTo(ChronoUnit.MILLIS) : null;
+            validateDateRange(start, end);
+
+            // Conversión de sortDirection
+            SortDirection direction = parseSortDirection(sortDirection);
+
+            // Ejecutar búsqueda
+            List<Asset> assets = searchUC.execute(start, end, filename, filetype, direction)
+                    .stream()
+                    .map(this::toGeneratedDto)
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(assets);
+        } catch (ResponseStatusException e) {
+            throw e; // Re-throw ResponseStatusException as is
+        } catch (Exception e) {
+            log.error("Unexpected error during search", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Search failed");
+        }
     }
 
     @Override
