@@ -3,7 +3,7 @@ package com.example.assets.infra.security;
 import com.example.assets.domain.usecase.SearchAssetsUseCase;
 import com.example.assets.domain.usecase.UploadAssetUseCase;
 import com.example.assets.domain.usecase.FindAssetUseCase;
-import com.example.assets.web.AssetController;
+import com.example.assets.web.AssetOUTController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = AssetController.class)
+@WebMvcTest(controllers = AssetOUTController.class)
 @Import({ApiKeyAuthFilter.class, SecurityConfig.class})
 @TestPropertySource(properties = "security.api.key=test-key")
 class ApiKeyAuthFilterIntegrationTest {

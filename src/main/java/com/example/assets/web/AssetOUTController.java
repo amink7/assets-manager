@@ -6,7 +6,6 @@ import com.example.assets.domain.usecase.SearchAssetsUseCase;
 import com.example.assets.domain.usecase.UploadAssetUseCase;
 import com.example.assets.domain.usecase.FindAssetUseCase;
 import com.example.assets.web.dto.AssetDto;
-import com.example.assets.domain.model.SortDirection;
 import com.example.assets.web.dto.AssetFileUploadRequest;
 import com.example.assets.web.dto.AssetFileUploadResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,6 +19,7 @@ import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -36,19 +36,20 @@ import java.util.UUID;
 /**
  * REST controller for managing assets.
  */
-@RestController
+//@RestController
+@Component
 @RequestMapping(path = "/api/mgmt/1/assets", produces = "application/json")
 @Tag(name = "Assets", description = "Assets management (async upload and search)")
-public class AssetController {
+public class AssetOUTController {
 
     private static final Logger log =
-            LoggerFactory.getLogger(AssetController.class);
+            LoggerFactory.getLogger(AssetOUTController.class);
 
     private final UploadAssetUseCase uploadUC;
     private final SearchAssetsUseCase searchUC;
     private final FindAssetUseCase findUC;
 
-    public AssetController(UploadAssetUseCase uploadUC, SearchAssetsUseCase searchUC, FindAssetUseCase findUC) {
+    public AssetOUTController(UploadAssetUseCase uploadUC, SearchAssetsUseCase searchUC, FindAssetUseCase findUC) {
         this.uploadUC = uploadUC;
         this.searchUC = searchUC;
         this.findUC = findUC;

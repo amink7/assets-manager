@@ -1,0 +1,369 @@
+openapi: 3.0.3
+info:
+  title: Asset Manager
+  description: |-
+    This API definition describes asset (pictures, videos) management operations.
+    Supports asynchronous file upload and advanced search/filtering capabilities.
+  contact:
+    email: the.asset.manager@inditex.com
+  version: 1.0.0
+servers:
+  - url: http://localhost:9085
+    description: Development server
+tags:
+  - name: asset
+    description: Asset management operations
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /api/mgmt/1/assets/actions/upload:
+    post:
+      tags:
+        - asset
+      summary: Performs an upload of the requested asset file
+      description: |-
+        Performs an asynchronous upload of the requested asset file. 
+        Returns 202 Accepted immediately and processes the file in the background.
+        The file content must be provided as Base64 encoded string.
+      operationId: uploadAssetFile
+      requestBody:
+        description: File upload request with Base64 encoded content
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetFileUploadRequest'
+            examples:
+              image_upload:
+                summary: Image upload example
+                value:
+                  filename: "profile.jpg"
+                  contentType: "image/jpeg"
+                  encodedFile: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+              document_upload:
+                summary: Document upload example
+                value:
+                  filename: "document.pdf"
+                  contentType: "application/pdf"
+                  encodedFile: "JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwo+PgplbmRvYmoK"
+      responses:
+        '202':
+          description: The operation was accepted by the backend
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetFileUploadResponse'
+              examples:
+                upload_accepted:
+                  summary: Upload accepted
+                  value:
+                    id: "550e8400-e29b-41d4-a716-446655440000"
+        '400':
+          description: Bad request - invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                bad_request:
+                  summary: Invalid request
+                  value:
+                    message: "Invalid Base64 encoding"
+        '401':
+          description: Unauthorized - missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/mgmt/1/assets/:
+    get:
+      tags:
+        - asset
+      summary: Search and filter uploaded assets
+      description: |-
+        Allows searching and filtering all uploaded/registered assets.
+        Supports filtering by date range, filename pattern (with wildcard '*'), 
+        and content type. Results are sorted by upload date.
+      operationId: getAssetsByFilter
+      parameters:
+        - $ref: '#/components/parameters/UploadDateStart'
+        - $ref: '#/components/parameters/UploadDateEnd'
+        - $ref: '#/components/parameters/Filename'
+        - $ref: '#/components/parameters/Filetype'
+        - $ref: '#/components/parameters/SortDirection'
+      responses:
+        '200':
+          description: Returns a list of assets matching the specified criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Asset'
+              examples:
+                asset_list:
+                  summary: List of matching assets
+                  value:
+                    - id: "550e8400-e29b-41d4-a716-446655440000"
+                      filename: "profile.jpg"
+                      contentType: "image/jpeg"
+                      url: "file:///app/uploads/550e8400-e29b-41d4-a716-446655440000.jpg"
+                      size: 2048
+                      uploadDate: "2025-08-21T10:30:00Z"
+                      status: "PUBLISHED"
+                    - id: "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+                      filename: "document.pdf"
+                      contentType: "application/pdf"
+                      url: "file:///app/uploads/6ba7b810-9dad-11d1-80b4-00c04fd430c8.pdf"
+                      size: 8192
+                      uploadDate: "2025-08-21T09:15:00Z"
+                      status: "PUBLISHED"
+                empty_list:
+                  summary: No assets found
+                  value: []
+        '400':
+          description: Malformed request - invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_date_range:
+                  summary: Invalid date range
+                  value:
+                    message: "Invalid upload date range"
+                invalid_sort:
+                  summary: Invalid sort direction
+                  value:
+                    message: "Sort direction must be ASC or DESC"
+        '401':
+          description: Unauthorized - missing or invalid API key
+        '500':
+          description: An unexpected error occurred
+
+  /api/mgmt/1/assets/{id}:
+    get:
+      tags:
+        - asset
+      summary: Get asset by ID
+      description: |-
+        Returns a single asset by its unique identifier.
+        Use this endpoint to check the status and details of a specific asset.
+      operationId: getAssetById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique asset identifier (UUID)
+          schema:
+            type: string
+            format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Asset found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+              examples:
+                published_asset:
+                  summary: Published asset
+                  value:
+                    id: "550e8400-e29b-41d4-a716-446655440000"
+                    filename: "document.pdf"
+                    contentType: "application/pdf"
+                    url: "file:///app/uploads/550e8400-e29b-41d4-a716-446655440000.pdf"
+                    size: 1024
+                    uploadDate: "2025-08-21T10:30:00Z"
+                    status: "PUBLISHED"
+                pending_asset:
+                  summary: Asset still processing
+                  value:
+                    id: "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+                    filename: "image.jpg"
+                    contentType: "image/jpeg"
+                    url: null
+                    size: null
+                    uploadDate: null
+                    status: "PROCESSING"
+        '404':
+          description: Asset not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                not_found:
+                  summary: Asset not found
+                  value:
+                    message: "Asset not found"
+        '401':
+          description: Unauthorized - missing or invalid API key
+        '500':
+          description: An unexpected error occurred
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+      description: API Key required for all endpoints
+
+  parameters:
+    UploadDateStart:
+      in: query
+      name: uploadDateStart
+      description: |-
+        The start date for the upload date range filter.
+        Must be in ISO-8601 format with UTC timezone.
+      schema:
+        type: string
+        format: date-time
+      example: "2025-08-21T00:00:00Z"
+
+    UploadDateEnd:
+      in: query
+      name: uploadDateEnd
+      description: |-
+        The end date for the upload date range filter.
+        Must be in ISO-8601 format with UTC timezone.
+      schema:
+        type: string
+        format: date-time
+      example: "2025-08-21T23:59:59Z"
+
+    Filename:
+      in: query
+      name: filename
+      description: |-
+        Filename pattern for filtering. Use '*' as wildcard.
+        Examples: 'document*', '*.pdf', 'image_*'
+      schema:
+        type: string
+        minLength: 1
+      example: "document*"
+
+    Filetype:
+      in: query
+      name: filetype
+      description: |-
+        MIME type for file filtering.
+        Examples: 'image/jpeg', 'application/pdf', 'text/plain'
+      schema:
+        type: string
+        minLength: 1
+      example: "application/pdf"
+
+    SortDirection:
+      in: query
+      name: sortDirection
+      description: Sort direction by upload date
+      schema:
+        type: string
+        enum: [ASC, DESC]
+        default: DESC
+      example: "DESC"
+
+  schemas:
+    Asset:
+      type: object
+      description: Represents an asset with its metadata and processing status
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique file identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        filename:
+          type: string
+          description: Name of the asset file
+          example: "profile-picture.jpg"
+        contentType:
+          type: string
+          description: MIME type of the file
+          example: "image/jpeg"
+        url:
+          type: string
+          description: The URL of the uploaded/published asset (null if still processing)
+          nullable: true
+          example: "file:///app/uploads/550e8400-e29b-41d4-a716-446655440000.jpg"
+        size:
+          type: integer
+          format: int64
+          description: The actual file size in bytes (null if still processing)
+          nullable: true
+          example: 2048
+        uploadDate:
+          type: string
+          format: date-time
+          description: The date & time the file was uploaded and published (null if still processing)
+          nullable: true
+          example: "2025-08-21T10:30:00Z"
+        status:
+          type: string
+          enum: [PENDING, PROCESSING, PUBLISHED, FAILED]
+          description: Current processing status of the asset
+          example: "PUBLISHED"
+
+    AssetFileUploadRequest:
+      type: object
+      description: Request payload for uploading an asset file
+      required:
+        - filename
+        - encodedFile
+        - contentType
+      properties:
+        filename:
+          type: string
+          description: The filename associated to the asset being uploaded
+          minLength: 1
+          maxLength: 255
+          example: "img.png"
+        encodedFile:
+          type: string
+          format: byte
+          description: |-
+            The actual file content encoded in Base64 format.
+            Maximum size after decoding: 50MB
+          minLength: 1
+          example: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+        contentType:
+          type: string
+          description: The MIME type according to IANA definition
+          minLength: 1
+          example: "image/png"
+
+    AssetFileUploadResponse:
+      type: object
+      description: Response after initiating an asset upload
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: |-
+            Unique identifier for the uploaded file.
+            Use this ID to check upload status via GET /assets/{id}
+          example: "550e8400-e29b-41d4-a716-446655440000"
+
+    ErrorResponse:
+      type: object
+      description: Standard error response format
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Invalid upload date range"
