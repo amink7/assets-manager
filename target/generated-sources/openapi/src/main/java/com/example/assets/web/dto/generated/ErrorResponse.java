@@ -19,7 +19,7 @@ import jakarta.annotation.Generated;
  */
 
 @Schema(name = "ErrorResponse", description = "Standard error response format")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-26T03:14:24.563006600+02:00[Europe/Madrid]", comments = "Generator version: 7.10.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-26T03:38:10.177868900+02:00[Europe/Madrid]", comments = "Generator version: 7.10.0")
 public class ErrorResponse {
 
   private String message;

@@ -1,9 +1,9 @@
 package com.example.assets.web;
 
-import com.example.assets.web.api.generated.Asset;
+import com.example.assets.web.dto.generated.Asset;
 import com.example.assets.web.api.generated.AssetApi;
-import com.example.assets.web.api.generated.AssetFileUploadRequest;
-import com.example.assets.web.api.generated.AssetFileUploadResponse;
+import com.example.assets.web.dto.generated.AssetFileUploadRequest;
+import com.example.assets.web.dto.generated.AssetFileUploadResponse;
 import com.example.assets.domain.usecase.SearchAssetsUseCase;
 import com.example.assets.domain.usecase.UploadAssetUseCase;
 import com.example.assets.domain.usecase.FindAssetUseCase;
